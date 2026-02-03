@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>iStore - Premium iOS Store</title>
+    <style>
+        :root {
+            --ios-blue: #007AFF;
+            --ios-green: #30D158;
+            --ios-red: #FF3B30;
+            --card-bg: #1C1C1E;
+            --bg-black: #000000;
+            --text-main: #FFFFFF;
+            --text-secondary: #8E8E93;
+        }
+
+        body {
+            background-color: var(--bg-black);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            margin: 0;
+            padding-bottom: 100px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* iOS Blur Header */
+        header {
+            padding: 40px 20px 20px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-top { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; }
+        h1 { margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -1px; }
+        
+        .cert-status {
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(48, 209, 88, 0.15);
+            color: var(--ios-green);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(48, 209, 88, 0.3);
+        }
+
+        /* Search Bar */
+        .search-container { position: relative; margin-top: 15px; }
+        .search-box {
+            background: #2C2C2E;
+            border-radius: 12px;
+            padding: 12px 15px 12px 40px;
+            border: none;
+            width: 100%;
+            color: white;
+            font-size: 17px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .search-container::before {
+            content: "🔍";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0.5;
+        }
+
+        /* App Cards */
+        .container { padding: 0 20px; }
+        .section-title { font-size: 22px; font-weight: 700; margin: 30px 0 15px; }
+
+        .app-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .app-card:active { transform: scale(0.96); background: #2C2C2E; }
+
+        .app-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            margin-right: 16px;
+            object-fit: cover;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+        }
+
+        .app-details { flex-grow: 1; }
+        .app-name { font-size: 18px; font-weight: 700; margin: 0; letter-spacing: -0.3px; }
+        .app-category { font-size: 13px; color: var(--text-secondary); margin: 4px 0; }
+        .app-status-tag { 
+            font-size: 11px; 
+            color: var(--ios-blue); 
+            font-weight: 700; 
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-install {
+            background: #F2F2F7;
+            color: var(--ios-blue);
+            text-decoration: none;
+            padding: 8px 22px;
+            border-radius: 25px;
+            font-weight: 800;
+            font-size: 15px;
+            transition: all 0.2s;
+            text-align: center;
+            min-width: 70px;
+        }
+
+        .btn-install:active { background: #D1D1D6; }
+
+        /* Stats Bar */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 40px 0;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 18px;
+            text-align: center;
+            border: 0.5px solid rgba(255, 255, 255, 0.05);
+        }
+        .stat-card span { display: block; font-size: 18px; font-weight: 800; color: var(--ios-blue); }
+        .stat-card label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; margin-top: 4px; display: block; }
+
+        /* Floating TG Button */
+        .tg-float {
+            position: fixed;
+            bottom: 30px;
+            right: 25px;
+            background: #24A1DE;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 24px rgba(36, 161, 222, 0.4);
+            z-index: 9999;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        .tg-float:active { transform: scale(0.9); }
+
+        /* Loading Ring */
+        .loader {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(0, 122, 255, 0.2);
+            border-top: 3px solid var(--ios-blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-top">
+        <h1>iStore</h1>
+        <div class="cert-status" id="certStatus">● Сертификат: Работает</div>
+    </div>
+    <div style="font-size: 13px; color: var(--ios-red); font-weight: 600;">● В сети: <span id="user-count">...</span></div>
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-box" placeholder="Поиск игр и приложений...">
+    </div>
+</header>
+
+<div class="container" id="app-list">
+    </div>
+
+<div class="container">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span id="app-count">0</span>
+            <label>Игр</label>
+        </div>
+        <div class="stat-card">
+            <span>Online</span>
+            <label>Статус</label>
+        </div>
+        <div class="stat-card">
+            <span>Free</span>
+            <label>Доступ</label>
+        </div>
+    </div>
+</div>
+
+<a href="https://t.me/shadowteamnew" class="tg-float">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+</a>
+
+<script>
+    const myApps = [
+        {
+            name: "Delta executor direct",
+            category: "New update v2.705",
+            status: "Working",
+            icon: "data:image/jpeg;base64,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",
+            link: "https://deltaios-executor.com/#popup1"
+        }
+    ];
+
+    const listContainer = document.getElementById('app-list');
+    const searchInput = document.getElementById('searchInput');
+
+    function renderApps(filterText = "") {
+        listContainer.innerHTML = '<div class="section-title">Популярные игры</div>';
+        
+        const filteredApps = myApps.filter(app => 
+            app.name.toLowerCase().includes(filterText.toLowerCase())
+        );
+
+        document.getElementById('app-count').innerText = myApps.length;
+
+        filteredApps.forEach(app => {
+            const card = document.createElement('div');
+            card.className = 'app-card';
+            card.innerHTML = `
+                <img src="${app.icon}" class="app-icon" loading="lazy">
+                <div class="app-details">
+                    <p class="app-name">${app.name}</p>
+                    <p class="app-category">${app.category}</p>
+                    <span class="app-status-tag">${app.status}</span>
+                </div>
+                <a href="${app.link}" class="btn-install" onclick="startDownload(this, event)">
+                    <span class="btn-text">GET</span>
+                    <div class="loader"></div>
+                </a>
+            `;
+            listContainer.appendChild(card);
+        });
+    }
+
+    function startDownload(btn, e) {
+        const text = btn.querySelector('.btn-text');
+        const loader = btn.querySelector('.loader');
+        
+        text.style.display = 'none';
+        loader.style.display = 'block';
+        
+        setTimeout(() => {
+            text.style.display = 'block';
+            loader.style.display = 'none';
+        }, 4000);
+    }
+
+    function updateOnlineCount() {
+        const current = Math.floor(Math.random() * (180 - 40 + 1)) + 40;
+        document.getElementById('user-count').innerText = current;
+    }
+
+    searchInput.addEventListener('input', (e) => renderApps(e.target.value));
+
+    // Initialize
+    renderApps();
+    updateOnlineCount();
+    setInterval(updateOnlineCount, 8000);
+</script>
+
+</body>
+</html>
